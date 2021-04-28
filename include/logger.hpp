@@ -34,16 +34,25 @@
 #include <thread>
 #include <deque>
 
+// Write a debug message. Must be called on a logger object or the StaticLogger class.
 #define debug(message) _debug(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__, message)
+// Write a warning message. Must be called on a logger object or the StaticLogger class.
 #define warning(message) _warning(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__, message)
+// Write an error message. Must be called on a logger object or the StaticLogger class.
 #define error(...) _error(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__, __VA_ARGS__)
 
+// Write a formatted debug message. Must be called on a logger object or the StaticLogger class.
 #define debugf(fmt, ...) _debugf(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
+// Write a formatted warning message. Must be called on a logger object or the StaticLogger class.
 #define warningf(fmt, ...) _warningf(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
+// Write a formatted error message. Must be called on a logger object or the StaticLogger class.
 #define errorf(fmt, ...) _errorf(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
 
+// Get the debug stream. Must be called on a logger object or the StaticLogger class.
 #define debugStream _debugStream(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__)
+// Get the warning stream. Must be called on a logger object or the StaticLogger class.
 #define warningStream _warningStream(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__)
+// Get the error stream. Must be called on a logger object or the StaticLogger class.
 #define errorStream _errorStream(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__)
 
 #if __cplusplus >= 201603L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201603L)
@@ -66,14 +75,21 @@
 using errno_t = int;
 #endif
 
+/**
+ * The main logging namespace
+ */
 namespace markusjx::logging {
     /**
      * The logger mode. Includes no logging, output to a file, output to console and both console and file output
      */
     enum LoggerMode {
+        // Log to a file
         MODE_FILE = 0,
+        // Log to the console only
         MODE_CONSOLE = 1,
+        // Log to a file and the console
         MODE_BOTH = 2,
+        // Disable logging
         MODE_NONE = 3
     };
 
@@ -81,15 +97,25 @@ namespace markusjx::logging {
      * The log level
      */
     enum LogLevel {
+        // Disable logging
         NONE = 0,
+        // Only log errors
         ERROR = 1,
+        // Log errors and warnings
         WARNING = 2,
+        // Log everything
         DEBUG = 3
     };
 
+    /**
+     * The synchronization mode
+     */
     enum SyncMode {
+        // The default mode (no synchronization)
         DEFAULT = 0,
+        // Synchronize all write operations
         SYNC = 1,
+        // Write everything in an extra thread
         ASYNC = 2
     };
 
@@ -98,8 +124,13 @@ namespace markusjx::logging {
      */
     class LoggerOptions {
     public:
+        /**
+         * The logger time format struct
+         */
         typedef struct loggerTimeFormat_s {
+            // The format string
             const char *format;
+            // The size of the formatted time string in bytes
             unsigned short sizeInBytes;
         } loggerTimeFormat;
 
@@ -110,13 +141,37 @@ namespace markusjx::logging {
          */
         LOGGER_MAYBE_UNUSED static void setTimeFormat(loggerTimeFormat fmt);
 
+        /**
+         * Set the log format.
+         * Please refer to the readme to view available options.
+         *
+         * @param fmt the format string
+         */
         LOGGER_MAYBE_UNUSED static void setLogFormat(const char *fmt);
 
+        /**
+         * Format a log message
+         *
+         * @param file the file the message came from
+         * @param line the line the message came from
+         * @param method the function name
+         * @param logLevel the log level
+         * @param message the message to format
+         * @return the formatted message
+         */
         static std::string formatMessage(const char *file, int line, const char *method, const char *logLevel,
                                          const std::string &message);
 
+        /**
+         * The log format.
+         * Please use setLogFormat to set this.
+         */
         static const char *log_fmt;
 
+        /**
+         * The logger time format.
+         * Please use etTimeFormat to set this.
+         */
         static loggerTimeFormat time_fmt;
 
     private:
@@ -145,8 +200,18 @@ namespace markusjx::logging {
          */
         class LoggerStream : public std::stringstream {
         public:
+            /**
+             * Create a logger stream
+             *
+             * @param callback the function to be called when the stream is destroyed
+             * @param mode the logger mode
+             * @param disabled whether the stream should be disabled
+             */
             explicit LoggerStream(std::function<void(std::string)> callback, LoggerMode mode, bool disabled);
 
+            /**
+             * Destroy the logger stream and log the message
+             */
             ~LoggerStream() override;
 
         private:
@@ -192,6 +257,7 @@ namespace markusjx::logging {
          *
          * @param _file the file name
          * @param line the line number
+         * @param method the function name
          * @param message the message
          */
         void _debug(const char *_file, int line, const char *method, const std::string &message);
@@ -206,6 +272,7 @@ namespace markusjx::logging {
          *
          * @param _file the file name
          * @param line the line number
+         * @param method the function name
          * @param message the message
          */
         void _error(const char *_file, int line, const char *method, const std::string &message);
@@ -215,6 +282,7 @@ namespace markusjx::logging {
          *
          * @param _file the file the error originated from
          * @param line the line number
+         * @param method the function name
          * @param message the error message
          * @param e the exception to append
          */
@@ -230,10 +298,22 @@ namespace markusjx::logging {
          *
          * @param _file the file name
          * @param line the line number
+         * @param method the function name
          * @param message the message
          */
         void _warning(const char *_file, int line, const char *method, const std::string &message);
 
+        /**
+         * Write a formatted debug message.
+         * You should use the debugf macro instead.
+         *
+         * @tparam Args the argument types
+         * @param _file the file name
+         * @param line the line number
+         * @param method the function name
+         * @param fmt the format string
+         * @param args the arguments to format
+         */
         template<class...Args>
         void _debugf(const char *_file, int line, const char *method, const char *fmt, Args...args) {
             int size = snprintf(nullptr, 0, fmt, args...);
@@ -244,6 +324,17 @@ namespace markusjx::logging {
             this->_debug(_file, line, method, out);
         }
 
+        /**
+         * Write a formatted warning message.
+         * You should use the warningf macro instead.
+         *
+         * @tparam Args the argument types
+         * @param _file the file name
+         * @param line the line number
+         * @param method the function name
+         * @param fmt the format string
+         * @param args the arguments to format
+         */
         template<class...Args>
         void _warningf(const char *_file, int line, const char *method, const char *fmt, Args...args) {
             int size = snprintf(nullptr, 0, fmt, args...);
@@ -254,6 +345,17 @@ namespace markusjx::logging {
             this->_warning(_file, line, method, out);
         }
 
+        /**
+         * Write a formatted debug message.
+         * You should use the errorf macro instead.
+         *
+         * @tparam Args the argument types
+         * @param _file the file name
+         * @param line the line number
+         * @param method the function name
+         * @param fmt the format string
+         * @param args the arguments to format
+         */
         template<class...Args>
         void _errorf(const char *_file, int line, const char *method, const char *fmt, Args...args) {
             int size = snprintf(nullptr, 0, fmt, args...);
@@ -274,6 +376,7 @@ namespace markusjx::logging {
          *
          * @param _file the file name
          * @param line the line number
+         * @param method the function name
          * @return the debug stream
          */
         LoggerUtils::LoggerStream _debugStream(const char *_file, int line, const char *method);
@@ -288,6 +391,7 @@ namespace markusjx::logging {
          *
          * @param _file the file name
          * @param line the line number
+         * @param method the function name
          * @return the warning stream
          */
         LoggerUtils::LoggerStream _warningStream(const char *_file, int line, const char *method);
@@ -302,6 +406,7 @@ namespace markusjx::logging {
          *
          * @param _file the file name
          * @param line the line number
+         * @param method the function name
          * @return the error stream
          */
         LoggerUtils::LoggerStream _errorStream(const char *_file, int line, const char *method);
@@ -378,6 +483,7 @@ namespace markusjx::logging {
          *
          * @param _file the file name
          * @param line the line number
+         * @param method the function name
          * @param message the message
          */
         LOGGER_MAYBE_UNUSED static void
@@ -393,6 +499,7 @@ namespace markusjx::logging {
          *
          * @param _file the file name
          * @param line the line number
+         * @param method the function name
          * @param message the message
          */
         LOGGER_MAYBE_UNUSED static void
@@ -403,6 +510,7 @@ namespace markusjx::logging {
          *
          * @param _file the file the error originated from
          * @param line the line number
+         * @param method the function name
          * @param message the error message
          * @param e the exception to append
          */
@@ -419,21 +527,55 @@ namespace markusjx::logging {
          *
          * @param _file the file name
          * @param line the line number
+         * @param method the function name
          * @param message the message
          */
         LOGGER_MAYBE_UNUSED static void
         _warning(const char *_file, int line, const char *method, const std::string &message);
 
+        /**
+         * Write a formatted debug message.
+         * You should use the debugf macro instead.
+         *
+         * @tparam Args the argument types
+         * @param _file the file name
+         * @param line the line number
+         * @param method the function name
+         * @param fmt the format string
+         * @param args the arguments to format
+         */
         template<class...Args>
         static void _debugf(const char *_file, int line, const char *method, const char *fmt, Args...args) {
             instance->_debugf(_file, line, method, fmt, args...);
         }
 
+        /**
+         * Write a formatted warning message.
+         * You should use the warningf macro instead.
+         *
+         * @tparam Args the argument types
+         * @param _file the file name
+         * @param line the line number
+         * @param method the function name
+         * @param fmt the format string
+         * @param args the arguments to format
+         */
         template<class...Args>
         static void _warningf(const char *_file, int line, const char *method, const char *fmt, Args...args) {
             instance->_warningf(_file, line, method, fmt, args...);
         }
 
+        /**
+         * Write a formatted error message.
+         * You should use the errorf macro instead.
+         *
+         * @tparam Args the argument types
+         * @param _file the file name
+         * @param line the line number
+         * @param method the function name
+         * @param fmt the format string
+         * @param args the arguments to format
+         */
         template<class...Args>
         static void _errorf(const char *_file, int line, const char *method, const char *fmt, Args...args) {
             instance->_errorf(_file, line, method, fmt, args...);
@@ -449,6 +591,7 @@ namespace markusjx::logging {
          *
          * @param _file the file name
          * @param line the line number
+         * @param method the function name
          * @return the debug stream
          */
         LOGGER_MAYBE_UNUSED static LoggerUtils::LoggerStream
@@ -464,6 +607,7 @@ namespace markusjx::logging {
          *
          * @param _file the file name
          * @param line the line number
+         * @param method the function name
          * @return the warning stream
          */
         LOGGER_MAYBE_UNUSED static LoggerUtils::LoggerStream
@@ -479,6 +623,7 @@ namespace markusjx::logging {
          *
          * @param _file the file name
          * @param line the line number
+         * @param method the function name
          * @return the error stream
          */
         LOGGER_MAYBE_UNUSED static LoggerUtils::LoggerStream

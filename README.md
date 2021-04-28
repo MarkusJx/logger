@@ -122,6 +122,24 @@ logger.errorStream << "You can also write strings: " << std::string("some string
 NOTE: There is no need to add a new line to the end of each message,
 those will be added to the messages if specified using the [message format](#message-formatting).
 
+### Logging to a file
+If you want to write the logs to a file, you may want to pass the ``MODE_FILE``
+or ``MODE_BOTH``. a file name and a file mode to the logger constructor.
+Since the files are handled using ``fopen()``, the available modes
+can be seen [here](https://en.cppreference.com/w/cpp/io/c/fopen).
+
+Example:
+```c++
+// Create a new file logger, with debug level, default
+// synchronisation. The data will be written to a file
+// calles 'out.log' and all data will be appended to any
+// existing logs
+Logger logger(MODE_FILE, DEBUG, DEFAULT, "out.log", "at");
+
+// This is also possible with the static logger
+StaticLogger::create(MODE_FILE, DEBUG, DEFAULT, "out.log", "at");
+```
+
 ## Configuration parameters
 ### Log level
 The following levels can be passed to the logger constructor to set the log level:
