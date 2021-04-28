@@ -2,7 +2,41 @@
 A simple C++17 logger.
 
 ## Usage
-### Create a new instance
+### Integrating with a CMake project
+If you want to use this project with an existing CMake project,
+you may want to use ``ExternalProject_Add`` to build this project:
+```Cmake
+project(example)
+cmake_minimum_required(VERSION 3.15)
+
+# This is required
+set(CMAKE_CXX_STANDARD 17)
+
+# Get the ExternalProject module
+include(ExternalProject)
+
+# Download and build the logger
+ExternalProject_Add(logger_project
+                    GIT_REPOSITORY https://github.com/MarkusJx/logger
+                    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/logger
+                    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>)
+
+# Get the install directory path
+ExternalProject_Get_Property(logger_project install_dir)
+set(logger_dir ${install_dir})
+                    
+# Include all logger directories
+include_directories(${logger_dir}/include)
+link_directories(${logger_dir}/lib)
+
+# Create some kind of binary
+add_executable(${PROJECT_NAME} test.cpp)
+
+# Link against the static library
+target_link_libraries(${PROJECT_NAME} logger)
+```
+
+### Create a new logger instance
 ```c++
 using namespace markusjx::logging;
 
