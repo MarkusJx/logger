@@ -32,8 +32,17 @@ link_directories(${logger_dir}/lib)
 # Create some kind of binary
 add_executable(${PROJECT_NAME} test.cpp)
 
-# Link against the static library
-target_link_libraries(${PROJECT_NAME} logger)
+# Link against the static library,
+# you may want to link against pthread
+# on unix-based operating systems
+if (NOT WIN32)
+    target_link_libraries(${PROJECT_NAME} logger pthread)
+else ()
+    target_link_libraries(${PROJECT_NAME} logger)
+endif ()
+
+# Add logger as a dependency to the current project
+add_dependencies(${PROJECT_NAME} logger_project)
 ```
 
 ### Create a new logger instance
