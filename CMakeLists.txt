@@ -16,3 +16,13 @@ if (BUILD_TEST)
     add_executable(test test.cpp)
     target_link_libraries(test logger)
 endif ()
+
+# Install steps
+set_target_properties(logger PROPERTIES PUBLIC_HEADER include/logger.hpp)
+
+install(TARGETS logger
+        LIBRARY
+            DESTINATION lib
+        PUBLIC_HEADER
+            DESTINATION include
+        )
