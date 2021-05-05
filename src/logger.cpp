@@ -190,14 +190,16 @@ LoggerUtils::LoggerStream Logger::_errorStream(const char *_file, int line, cons
 }
 
 void Logger::write_log_message(const log_message &message) {
-    if (sync == SYNC) {
-        std::unique_lock<std::mutex> lock(mtx);
-        write_log_impl(message);
-    } else if (sync == ASYNC) {
-        std::unique_lock<std::mutex> lock(mtx);
-        messageQueue.push_back(message);
-    } else {
-        write_log_impl(message);
+    if (message.logLevel <= level) {
+        if (sync == SYNC) {
+            std::unique_lock<std::mutex> lock(mtx);
+            write_log_impl(message);
+        } else if (sync == ASYNC) {
+            std::unique_lock<std::mutex> lock(mtx);
+            messageQueue.push_back(message);
+        } else {
+            write_log_impl(message);
+        }
     }
 }
 
