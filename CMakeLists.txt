@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(logger)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 option(BUILD_TEST "Whether to build tests" OFF)
 
 include_directories(include)
