@@ -101,7 +101,7 @@ logger.debugf("Some %s message", "formatted");
 logger.warningf("This is warning %d", 42);
 
 // Will output "This is an error"
-logger.errorf(This is %s", "an error");
+logger.errorf("This is %s", "an error");
 ```
 
 NOTE: This will not affect your message formatting.
