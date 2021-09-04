@@ -34,6 +34,28 @@
 #include <thread>
 #include <deque>
 
+#ifdef LOGGER_UNIQUE_DEF
+// Write a debug message. Must be called on a logger object or the StaticLogger class.
+#define logger_debug(message) _debug(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__, message)
+// Write a warning message. Must be called on a logger object or the StaticLogger class.
+#define logger_warning(message) _warning(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__, message)
+// Write an error message. Must be called on a logger object or the StaticLogger class.
+#define logger_error(...) _error(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__, __VA_ARGS__)
+
+// Write a formatted debug message. Must be called on a logger object or the StaticLogger class.
+#define logger_debugf(fmt, ...) _debugf(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
+// Write a formatted warning message. Must be called on a logger object or the StaticLogger class.
+#define logger_warningf(fmt, ...) _warningf(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
+// Write a formatted error message. Must be called on a logger object or the StaticLogger class.
+#define logger_errorf(fmt, ...) _errorf(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__, fmt, __VA_ARGS__)
+
+// Get the debug stream. Must be called on a logger object or the StaticLogger class.
+#define logger_debugStream _debugStream(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__)
+// Get the warning stream. Must be called on a logger object or the StaticLogger class.
+#define logger_warningStream _warningStream(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__)
+// Get the error stream. Must be called on a logger object or the StaticLogger class.
+#define logger_errorStream _errorStream(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__)
+#else //LOGER_UNIQUE_DEF
 // Write a debug message. Must be called on a logger object or the StaticLogger class.
 #define debug(message) _debug(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__, message)
 // Write a warning message. Must be called on a logger object or the StaticLogger class.
@@ -54,6 +76,7 @@
 #define warningStream _warningStream(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__)
 // Get the error stream. Must be called on a logger object or the StaticLogger class.
 #define errorStream _errorStream(::markusjx::logging::LoggerUtils::removeSlash(__FILE__), __LINE__, __FUNCTION__)
+#endif //LOGER_UNIQUE_DEF
 
 #if __cplusplus >= 201603L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201603L)
 #   define LOGGER_MAYBE_UNUSED [[maybe_unused]]
