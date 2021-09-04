@@ -19,7 +19,8 @@ if (BUILD_TEST)
 endif ()
 
 # Install steps
-set_target_properties(logger PROPERTIES PUBLIC_HEADER include/logger.hpp include/logger_undef.hpp)
+set_target_properties(logger PROPERTIES PUBLIC_HEADER include/logger.hpp)
+set_target_properties(logger PROPERTIES PUBLIC_HEADER include/logger_undef.hpp)
 
 install(TARGETS logger
         LIBRARY
